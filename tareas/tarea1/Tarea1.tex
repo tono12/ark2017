@@ -1,0 +1,239 @@
+\documentclass[letterpaper,11pt,notitlepage]{article} 
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+% para poder escribir con tildes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% fuentes para escribir símbolos
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+
+% inclusión de graficos
+\usepackage{graphicx}
+
+% \usepackage{hyperref}
+\pagestyle{plain}
+\usepackage[centertags]{amsmath}
+% Codigo
+\usepackage{listings}
+% Varias Imagenes en una Figura
+\usepackage{subfig}
+% //posicion imagen
+\usepackage{float}
+\usepackage{subfig}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+% \topmargin 0 
+
+
+\usepackage{color}
+\definecolor{gray97}{gray}{1}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=12pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+}
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+\lstdefinestyle{C}
+{language=C,
+basicstyle=\ttfamily
+}
+
+% ====================================
+
+% % ===== Encabezado =====
+% \pagestyle{myheadings}
+% \markright{Tutorial Creación de proyecto en MPLABX \hfill }
+
+
+% ===== Ajuste layout pagina =====
+%\usepackage{fullpage}
+
+% ================================
+
+% --- commandos ---
+% \newcommand{\ds}{\displaystyle}
+% \def\x{{\bf x}}
+% -----------------
+
+% ========  Aca comienza el cuerpo del texto ==========
+\begin{document}
+
+% \maketitle
+
+\begin{center}
+\textsc{ \huge \bfseries Arquitectura de Computadores\\[0.2cm] 543.426}\\[0.2cm]
+% \textsc{ Ayudante: Javier Soto}\\[0.2cm]
+Tarea No. 1\\
+
+\today
+
+\end{center}
+
+
+
+% %hace índice
+% \tableofcontents
+
+Resuelva los siguientes problemas utilizando la convención estándar de uso de registros MIPS (temporales, argumentos, valores de retorno, etc.). La eficiencia del código (velocidad, tamaño, uso de registros) también se considerará en la evaluación de la tarea.
+
+Entregar un informe escrito (en computador) con el código debidamente comentado y las explicaciones correspondientes. Plazo máximo de entrega: Martes 4 de Abril hasta las 17 horas en Secretaría de Electrónica. No se corregirán tareas atrasadas.
+
+Se debe trabajar en grupos de 2 personas. Grupos de 1 persona son permitidos pero no recomendados. No se permitirán grupos de más de 2 personas. Se les recuerda que cualquier copia (entre tareas o de fuentes externas) resultarán en calificación 1 para todas las tareas involucradas.
+
+
+\subsection*{Problema 1}
+
+Escriba una función en assembly MIPS que busque la primera aparición de un string ``s2'' dentro de otro string ``s1''. La posición se deberá retornar como un entero que apunte al carácter de ``s2'' encontrado. En caso de encontrar el string deberá retornar el entero 0. El siguiente código en C es una referencia de la implementación de esta función.
+
+\begin{lstlisting}[style=C]
+int strfind (char *s1, char *s2)
+{
+  char *begin_s2 = s2;
+  int s1_cnt = 0;
+  int cnt = 0;
+  
+  while(*s2 != 0){
+    if(*s1 == 0)
+      return 0;
+
+    if(*s1 == *s2)
+      s2++;
+
+    else{
+      s2 = begin_s2;
+      cnt = s1_cnt + 1;
+     }
+
+    s1++;
+    s1_cnt++
+  }
+  return cnt;
+}
+\end{lstlisting} 
+
+Esta función en C recibe como argumentos los punteros hacia los primeros caracteres de cada string. Asuma que las direcciones de dichos caracteres se reciben en su función en los registros \$a0 y \$a1.
+
+%\subsubsection*{Solución}
+%
+%\begin{lstlisting}[style=C]
+%GCD:bnez $a1,L01        # si y!=0 salta a L01
+%    move $v0,$a0        # retorna x
+%    jr $ra              # termina funcion
+%L01:sw $fp,-4($sp)      # guarda el valor de fp en stack
+%    addi $fp,$sp,-4     # guarda en fp la nueva base del stack
+%    sw $ra,-4($fp)      # guarda ra en stack
+%    addi $sp,$fp,-4     # guarda en sp el tope del stack
+%    div $a0,$a1         # x/y
+%    move $a0,$a1        # x=y
+%    mfhi $a1            # y=x%y
+%    jal GCD             # llamada recursiva a GCD
+%L02:addi $sp,$fp,-4     # recupera el valor del tope del stack
+%    lw $ra,-4($fp)      # recupera ra
+%    lw $fp,0($fp)       # recupera fp
+%    jr $ra              # termina funcion
+%\end{lstlisting}    
+
+\subsection*{Problema 2}
+
+La siguiente función en C es una implementación que permite calcular el promedio de datos transferidos por segundo en kb/s desde ``n'' dispositivos de almacenamiento flash en un equipo. Esta función recibe como argumento la dirección de un vector de elementos de una estructura llamada ``datos''. Además recibe como argumento la cantidad ``n'' de elementos de dicha estructura que posee el vector. La estructura ``datos'', también definida en el código, posee la información de la cantidad de datos transferidos (en kb) y el tiempo que tardó en transferirlos para cada dispositivo.
+
+\begin{lstlisting}[style=C]
+  struct datos {
+    int cantidad;      // cantidad de datos en kb
+    int tiempo;        // tiempo en s
+  } datos;
+
+  int prom_transf (struct datos *pd, int n)
+  {
+    int sum = 0;
+    int cnt;
+    int flujo;
+    for(cnt=0; cnt < n; cnt++){
+      flujo = (p+cnt).cantidad / (p+cnt).tiempo;      
+      sum = sum + flujo;
+    }
+
+    return sum/n;      
+  }
+\end{lstlisting}     
+
+Escriba una función en assembly MIPS que sea capaz de ejecutar esta función. Asuma que el programa puede detectar como mínimo una velocidad de 1 kb/s.
+
+%\newpage
+%\subsubsection*{Solución}
+%
+%\begin{lstlisting}[style=C]
+%MULTCUAD: li   $t0, 400          # t0 = 400 
+%          li   $t1, 0            # i = 0
+%   FOR_I: bge  $t1, $t0, FIN     # if i>=400 goto FIN
+%          li   $t2, 0            # j = 0
+%   FOR_J: bge  $t2, $t0, ITFOR_I # if j>=400 goto ITFOR_I
+%          li   $t3, 0            # k = 0
+%          li   $t4, 0            # sum = 0
+%   FOR_K: bge  $t3, $t0, ITFOR_J # if k>=400 goto ITFOR_J
+%          add  $t5, $a0, $t1     # t5 = *(a+i) 
+%          lw   $t5, 0($t5)       # t5 = *(*(a+i))
+%          add  $t5, $t3          # t5 = *(*(a+i)+k)
+%          lw   $t5, 0($t5)       # t5 = a[i][k]
+%          add  $t6, $a1, $t3     # t6 = *(b+k) 
+%          lw   $t6, 0($t6)       # t6 = *(*(b+k))
+%          add  $t6, $t2          # t6 = *(*(b+k)+j)
+%          lw   $t6, 0($t6)       # t6 = b[k][j]
+%          mul  $t5, $t5, $t6     # t5 = a[i][k]*b[k][j]
+%          add  $t4, $t4, $t5     # sum = sum + a[i][k]*b[k][j]
+%          addi $t3, $t3, 4
+%          b    FOR_K
+%          
+% ITFOR_J: add  $t5, $a2, $t1     # t5 = *(c+i)
+%          lw   $t5, 0($t5)       # t5 = *(*(c+i))
+%          add  $t5, $t5, $t2     # t5 = *(*(c+i)+j)
+%          sw   $t4, 0($t5)       # c[i][j] = sum
+%          addi $t2, $t2, 4       # j += 4
+%          b    FOR_J
+%          
+% ITFOR_I: addi $t1, $t1, 4       # i += 4
+%          b    FOR_I
+%          
+%     FIN: jr   $ra
+%   \end{lstlisting}   %
+
+\subsection*{Problema 3}
+
+La siguiente linea de código es el protipo de una función en C:
+\begin{lstlisting}[style=C]
+  int spc_sum (int *v1, int n);
+\end{lstlisting}
+Esta función realiza operaciones entre los elementos de un vector. Se recibe como argumento un puntero al primer elemento de dicho vector. Además se recibe como un segundo argumento un entero que indica la cantidad de elementos que posee el vector. La función calcula la suma de todos los elementos múltiplos de 3 y múltiplos de 5 (exceptuando aquellos valores repetidos que ya hayan sido considerados como múltiplos de 3) que posee el vector de largo ``n''. 
+
+Escriba una función en assembly MIPS que cumpla con la funcionalidad descrita y que retorne como entero la suma final total. Al escribir su función busque minimizar la cantidad de instrucciones necesarias para su ejecución. Estime cuantas instrucciones requiere un vector de ``n'' elementos para ejecutar su función.
+
+\end{document}

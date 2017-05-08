@@ -1,0 +1,280 @@
+\documentclass[letterpaper,11pt,notitlepage]{article} 
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+% para poder escribir con tildes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% fuentes para escribir símbolos
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+
+% inclusión de graficos
+\usepackage{graphicx}
+
+% \usepackage{hyperref}
+\pagestyle{plain}
+\usepackage[centertags]{amsmath}
+% Codigo
+\usepackage{listings}
+% Varias Imagenes en una Figura
+\usepackage{subfig}
+% //posicion imagen
+\usepackage{float}
+\usepackage{subfig}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+% \topmargin 0 
+
+
+\usepackage{color}
+\definecolor{gray97}{gray}{1}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=12pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+}
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+\lstdefinestyle{C}
+{language=C,
+basicstyle=\ttfamily
+}
+
+% ====================================
+
+% % ===== Encabezado =====
+% \pagestyle{myheadings}
+% \markright{Tutorial Creación de proyecto en MPLABX \hfill }
+
+
+% ===== Ajuste layout pagina =====
+%\usepackage{fullpage}
+
+% ================================
+
+% --- commandos ---
+% \newcommand{\ds}{\displaystyle}
+% \def\x{{\bf x}}
+% -----------------
+
+% ========  Aca comienza el cuerpo del texto ==========
+\begin{document}
+
+% \maketitle
+
+\begin{center}
+\textsc{ \huge \bfseries Arquitectura de Computadores\\[0.2cm] 543.426}\\[0.2cm]
+% \textsc{ Ayudante: Javier Soto}\\[0.2cm]
+Tarea No. 2\\
+
+\today
+
+\end{center}
+
+
+
+% %hace índice
+% \tableofcontents
+
+Resuelva los siguientes problemas utilizando la convención estándar de uso de registros MIPS (temporales, argumentos, valores de retorno, etc.). La eficiencia del código (velocidad, tamaño, uso de registros) también se considerará en la evaluación de la tarea.
+
+Entregar un informe escrito (en computador) con la descripción de sus soluciones a cada uno de los problemas en secretaría de electrónica. Además deberá enviar al correo antonio.saavedra@openmailbox.org con las soluciones a cada problema. Los códigos serán probados utilizando el simulador MARS MIPS, por lo que no se corregirán programas que no puedan ser ensamblados en el mismo. Plazo máximo de entrega: Jueves 20 de Abril hasta las 17 horas. No se corregirán tareas atrasadas.
+
+Se debe trabajar en grupos de 2 personas. Grupos de 1 persona son permitidos pero no recomendados. No se permitirán grupos de más de 2 personas. Se les recuerda que cualquier copia (entre tareas o de fuentes externas) resultarán en calificación 1 para todas las tareas involucradas.
+
+
+\subsection*{Problema 1}
+
+La siguiente función en C calcula de manera recursiva el máximo valor entre los elementos de un vector $v$. Recibe como argumento un puntero al inicio de dicho vector y un entero indicando su largo, $n$.
+
+
+\begin{lstlisting}[style=C]
+int max(int *v, int n)
+{
+  int max1, max2;
+  
+  if (n < 2)
+    return v[0];
+  
+  max1 = max(v, n/2);
+  max2 = max(v + n/2, n/2);
+  
+  if (max1 > max2)
+    return max1;
+  
+  return max2;
+}
+\end{lstlisting} 
+
+Asumiento que $n$ es siempre un valor potencia de 2, escriba esta función en assembly MIPS.
+A continuación se entrega un código en MIPS que implementa un código main que verifica esta función con un vector de prueba definido en la sección de datos. Utilice este programa para verificar el funcionamiento de su código.
+
+\begin{lstlisting}[style=C]
+.data				
+N:	.word 8				
+vect:	.word 1, 7, 3, 2, 4, 6, 10, 8	
+printf: .asciiz "El valor maximo es "	
+fin:	.asciiz "\n"
+
+.text
+
+######## FUNCION MAIN ########
+
+main:	la   $a0, vect    # vec como argumento a MAX	
+	la   $a1, N       # direccion de N
+	lw   $a1, 0($a1)  # N como argumento a MAX
+	sw   $fp, -4($sp) # guarda el valor de fp en stack
+	addi $fp, $sp, -4 # fp como la nueva base del stack
+	sw   $ra, -4($fp) # guarda ra en stack
+	addi $sp, $fp, -4 # sp como el tope del stack
+	jal  MAX          # MAX(vect,N)
+	addi $sp, $fp, 4  # recupera el tope del stack
+	lw   $ra, -4($fp) # recupera ra
+	lw   $fp, 0($fp)  # recupera fp
+	move $t0, $v0	  # el valor maximo es guardado
+	li   $v0, 4	  # se configura el syscall para imprimir string
+	la   $a0, print	  # se carga el string a imprimir
+	syscall		  # se imprime string
+	li   $v0, 1	  # se configura el syscall para impimir entero
+	move $a0, $t0	  # N para imprimir
+	syscall		  # se imprime N
+	li   $v0,4	  # se configura el syscall para imprimir string
+	la   $a0, fin	  # se carga el string a imprimir
+	syscall		  # se imprime string
+	li   $v0, 10	  # se configura el syscall para finalizacion
+	syscall		  # termina programa
+		
+######## FUNCION MAX ########
+
+MAX: ## INGRESE SU CODIGO ###
+\end{lstlisting} 
+%\subsubsection*{Solución}
+%
+%\begin{lstlisting}[style=C]
+%GCD:bnez $a1,L01        # si y!=0 salta a L01
+%    move $v0,$a0        # retorna x
+%    jr $ra              # termina funcion
+%L01:sw $fp,-4($sp)      # guarda el valor de fp en stack
+%    addi $fp,$sp,-4     # guarda en fp la nueva base del stack
+%    sw $ra,-4($fp)      # guarda ra en stack
+%    addi $sp,$fp,-4     # guarda en sp el tope del stack
+%    div $a0,$a1         # x/y
+%    move $a0,$a1        # x=y
+%    mfhi $a1            # y=x%y
+%    jal GCD             # llamada recursiva a GCD
+%L02:addi $sp,$fp,-4     # recupera el valor del tope del stack
+%    lw $ra,-4($fp)      # recupera ra
+%    lw $fp,0($fp)       # recupera fp
+%    jr $ra              # termina funcion
+%\end{lstlisting}    
+\newpage
+\subsection*{Problema 2}
+En los campos de la lógica y las matemáticas se conoce una secuencia de Hofstadter a una familia de secuencias de enteros definidos a partir de relaciones de recurrencia no lineales. En particular  la secuencia de Hofstadter masculina y femenina se define según la siguiente relación:
+\begin{eqnarray*}
+  F(0) = 1; \quad M(0) = 0 \\
+  F(n) = n - M(F(n-1)), \quad n>0\\
+  M(n) = n - F(M(n-1)), \quad n>0
+\end{eqnarray*}
+
+Las siguientes funciones en C permiten calcular el n-ésimo número de estas secuencias a partir de llamdas mutuamente recursivas.
+\begin{lstlisting}[style=C]
+int F(const int n);
+int M(const int n);
+ 
+int F(const int n)
+{
+  if (n == 0)
+    return 1;
+  else
+    return n - M(F(n - 1));
+}
+ 
+int M(const int n)
+{
+  if (n == 0)
+    return 0;
+  else
+    return n - F(M(n - 1));
+}
+\end{lstlisting}     
+
+Escriba un programa en assembly MIPS que sea capaz de implementar estas funciones siguiente el esquema de recursión mutua. Su programa deberá calcular los $n$ primeros femeninos y masculinos de esta secuencia e imprimirlos en pantalla utilizando el syscall correspondiente. El valor de $n$ deberá ser definido en la sección de datos del programa.
+
+%\newpage
+%\subsubsection*{Solución}
+%
+%\begin{lstlisting}[style=C]
+%MULTCUAD: li   $t0, 400          # t0 = 400 
+%          li   $t1, 0            # i = 0
+%   FOR_I: bge  $t1, $t0, FIN     # if i>=400 goto FIN
+%          li   $t2, 0            # j = 0
+%   FOR_J: bge  $t2, $t0, ITFOR_I # if j>=400 goto ITFOR_I
+%          li   $t3, 0            # k = 0
+%          li   $t4, 0            # sum = 0
+%   FOR_K: bge  $t3, $t0, ITFOR_J # if k>=400 goto ITFOR_J
+%          add  $t5, $a0, $t1     # t5 = *(a+i) 
+%          lw   $t5, 0($t5)       # t5 = *(*(a+i))
+%          add  $t5, $t3          # t5 = *(*(a+i)+k)
+%          lw   $t5, 0($t5)       # t5 = a[i][k]
+%          add  $t6, $a1, $t3     # t6 = *(b+k) 
+%          lw   $t6, 0($t6)       # t6 = *(*(b+k))
+%          add  $t6, $t2          # t6 = *(*(b+k)+j)
+%          lw   $t6, 0($t6)       # t6 = b[k][j]
+%          mul  $t5, $t5, $t6     # t5 = a[i][k]*b[k][j]
+%          add  $t4, $t4, $t5     # sum = sum + a[i][k]*b[k][j]
+%          addi $t3, $t3, 4
+%          b    FOR_K
+%          
+% ITFOR_J: add  $t5, $a2, $t1     # t5 = *(c+i)
+%          lw   $t5, 0($t5)       # t5 = *(*(c+i))
+%          add  $t5, $t5, $t2     # t5 = *(*(c+i)+j)
+%          sw   $t4, 0($t5)       # c[i][j] = sum
+%          addi $t2, $t2, 4       # j += 4
+%          b    FOR_J
+%          
+% ITFOR_I: addi $t1, $t1, 4       # i += 4
+%          b    FOR_I
+%          
+%     FIN: jr   $ra
+%   \end{lstlisting}   %
+\newpage
+\subsection*{Problema 3}
+
+La siguiente linea de código es el protipo de una función en C:
+\begin{lstlisting}[style=C]
+  int mat_sumspc (int *m1, int *m2, int *m3, int n);
+\end{lstlisting}
+Esta función debe realizar las siguientes operaciones sobre dos matrices de dimensiones $n\times n$: En primer lugar debe sumar ambas matrices. Luego debe verificar si el resultado de la suma es una matriz simétrica, para finalmente, en caso de no ser simétrica, calcular su transpuesta. La función debe retornar un 0 si el resultado era una matriz simétrica y un 1 en caso contrario. Adicionalmente la función guarda en el resultado de la transpuesta de la suma en la tercera matriz que recibe como argumento (no es necesario calcular explicitamente la transpuesta en caso de ser simétrica). El cuarto argumento contiene la información del largo de las matrices, $n$.
+
+Implemente esta función a partir de lo descrito en lenguaje assembly MIPS.
+
+Recuerde que en C las matrices se almacenan por filas en memoria y el nombre de la matriz es un puntero al primer elemento de ésta. En consecuencia, para una matriz de dimensiones N filas x M columnas, donde el puntero int *p apunta al primer elemento, la notación $p[i][j]$ es equivalente a $*(p + i*M + j)$.
+
+\end{document}

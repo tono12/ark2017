@@ -1,0 +1,336 @@
+\documentclass[letterpaper,11pt,notitlepage]{article} 
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+% para poder escribir con tildes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% fuentes para escribir símbolos
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+
+% inclusión de graficos
+\usepackage{graphicx}
+
+% \usepackage{hyperref}
+\pagestyle{empty}
+\usepackage[centertags]{amsmath}
+% Codigo
+\usepackage{listings}
+% Varias Imagenes en una Figura
+\usepackage{subfig}
+% //posicion imagen
+\usepackage{float}
+\usepackage{subfig}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+% \topmargin 0 
+
+
+\usepackage{color}
+\definecolor{gray97}{gray}{1}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=12pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+}
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+\lstdefinestyle{C}
+{language=C,
+basicstyle=\ttfamily
+}
+
+% ====================================
+
+% % ===== Encabezado =====
+% \pagestyle{myheadings}
+% \markright{Tutorial Creación de proyecto en MPLABX \hfill }
+
+
+% ===== Ajuste layout pagina =====
+%\usepackage{fullpage}
+
+% ================================
+
+% --- commandos ---
+% \newcommand{\ds}{\displaystyle}
+% \def\x{{\bf x}}
+% -----------------
+
+% ========  Aca comienza el cuerpo del texto ==========
+\begin{document}
+
+% \maketitle
+
+\begin{center}
+\textsc{ \huge \bfseries Arquitectura de Computadores\\[0.2cm] 543.426}\\[0.2cm]
+\textsc{ Ayudante: Antonio Saavedra}\\[0.2cm]
+Ayudantía No. 2\\
+
+\today
+
+\end{center}
+
+
+
+% %hace índice
+% \tableofcontents
+
+\subsection*{Problema 0}
+El máximo común divisor entre dos números enteros puede ser calculada numéricamente a partir de las siguientes ecuaciones:
+\begin{eqnarray*}
+gcd(x,y) = x, \quad y = 0\\
+gcd(x,y) = gcd(y,x\%y), \quad x>=y, \quad y>0
+\end{eqnarray*}
+
+El operador \% denota el resto de la división entera entre los dos números. Escriba una función en assembly MIPS que realice el cálculo de manera recursiva a partir de estas ecuaciones.
+\subsubsection*{Solución}
+
+\begin{lstlisting}[style=C]
+GCD: bnez $a1, L01
+     move $v0, $a0
+     jr   $ra
+     
+L01: sw   $fp, -4($sp)
+     addi $fp, $sp, -4
+     sw   $ra, -4($fp)
+     addi $sp, $fp, -4
+     
+     div  $a0, $a1
+     move $a0, $a1
+     mfhi $a1
+     jal GCD
+     
+L02: addi $sp, $fp, -4
+     lw   $ra, -4($fp)
+     lw   $fp, 0($fp)
+     jr   $ra
+\end{lstlisting}
+      
+
+\newpage
+\subsection*{Problema 1}
+
+Esta función calcula el módulo entre dos números (operación \% en C), de forma recursiva.
+
+\begin{lstlisting}[style=C]
+int modulo(int m, int n)
+{
+  if (m<n) return m;
+  else return modulo (m-n, n);
+}
+\end{lstlisting}
+
+
+Escriban una función recursiva en assembly MIPS que implemente esta función de C. Utilicen memoria en stacks.
+
+\subsubsection*{Solución}
+
+\begin{lstlisting}[style=C]
+MODULO: bge $a0, $a1, ELSE 
+        move $v0, $a0
+        jr $ra
+        
+ELSE:   sw   $fp, -4($sp)
+        addi $fp, $sp, -4
+        sw $ra, -4($fp)
+        addi $sp, $fp, -4
+        sub $a0, $a0, $a1
+        jal MODULO
+        
+        addi $sp, $fp, 4
+        lw $ra, -4($fp)
+        lw $fp, 0($fp)
+        jr $ra  
+\end{lstlisting}
+
+\newpage
+
+\subsection*{Problema 2}
+
+La función de Ackermann toma dos números como argumentos y devuelve un único número
+natural. Se define como sigue:
+
+\begin{equation}
+A(m,n) =
+\left\{
+	\begin{array}{lll}
+		n+1,  & \mbox{si } m=0; \\
+		A(m-1, 1), & \mbox{si } m>0 \wedge n=0;\\
+		A(m-1, A(m,n-1)), & \mbox{si } m>0 \land n>0;
+	\end{array}
+\right.
+\end{equation}
+
+La implementación en C de la definición anterior es la siguiente:
+
+\begin{lstlisting}[style=C]
+int Ackermann(int m, int n)
+{
+  if (m == 0) return n+1;
+  else if (n == 0) return Ackermann(m-1, 1);
+  else Ackermann (m-1, Ackermann(m, n-1));
+}
+\end{lstlisting}
+
+\subsubsection*{Solución}
+\begin{lstlisting}[style=C]
+ACKER:  bne $a0,$zero,ELSE_IF
+        addi $v0,$a1,1
+        jr $ra
+        
+ELSE_IF:sw $fp,-4($sp)
+        addi $fp,$sp,-4 
+        sw $ra,-4($fp) 
+        sw $a0,-8($fp) 
+        addi $sp,$fp,-8      
+        bne $a1,$zero,ELSE 
+        addi $a0,$a0,-1 
+        li $a1,1 
+        jal ACKER        
+        addi $sp,$fp,4 
+        lw $ra,-4($fp) 
+        lw $fp,0($fp)
+        jr $ra 
+        
+ELSE:   addi $a1,$a1,-1
+        jal ACKER      
+        move $a1,$v0 
+        lw $a0,-8($fp) 
+        addi $a0,$a0,-1 
+        jal ACKER           
+        addi $sp,$fp,4    
+        lw $ra,-4($fp)
+        lw $fp,0($fp)  
+        jr $ra  
+\end{lstlisting}%
+\newpage
+
+\subsection*{Problema 3}
+
+Los números Catalán se definen de la siguiente forma:
+\begin{equation}
+C_{0} = 1;
+\end{equation}
+\begin{equation}
+C_{n+1} = [(4n+2)\cdot C_{n}]/(n+2)
+\end{equation}
+
+Esto se puede implementar en C de la siguiente manera:
+
+\begin{lstlisting}[style=C]
+unsigned int catalan(unsigned int n)
+{
+  if (n==0)
+    return 1;
+  else return ((4*n-2)*catalan(n-1))/(n+1);
+} 
+\end{lstlisting}
+
+
+Escriba una función en assembly MIPS que calcule el n-ésimo número Catalán.
+
+\subsubsection*{Solución}
+\begin{lstlisting}[style=C]
+CATALAN: bne   $a0, $zero, L1
+	 li    $v0, 1
+	 jr    $ra
+
+L1:	 sw    $fp, -4($sp)
+	 addi  $fp, $sp, -4
+	 sw    $ra, -4($fp)
+	 sw    $a0, -8($fp)
+	 addi  $sp, $fp, -8
+
+	 addiu $a0, $a0, -1
+	 jal   CATALAN
+
+L2:	 addi  $sp, $fp, 4
+	 lw    $a0, -8($fp)
+	 lw    $ra, -4($fp)
+	 lw    $fp, 0($fp)
+
+	 sll   $t0, $a0, 2
+	 addiu $t0, $t0, -2
+	 multu $t0, $v0
+	 mflo  $t0
+	 addiu $t1, $a0, 1
+	 divu  $t0, $t1
+	 mflo  $v0
+
+	 jr    $ra
+\end{lstlisting}
+
+\newpage
+
+
+\subsection*{Problema 4}
+
+La función 91 de McCarthy es una función recursiva, definida por el informático John McCarthy como una prueba de verificación formal dentro de problemas de las ciencias de la computación. Los resultados de evaluar un entero n son $n-10$ si $n>100$, y debería retornar luego de calculos recursivos el valor 91 si $n\leq 100$. El siguiente código C implementa la función.
+
+\begin{lstlisting}[style=C]
+unsigned int m91(unsigned int n)
+{
+  if (n>100)
+    return n-10;
+  else return m91(m91(n+11));
+}
+\end{lstlisting}
+
+Escriba una función en assembly MIPS que implemente esta misma función.
+
+\subsubsection*{Solución}
+\begin{lstlisting}[style=C]
+M91: li    $t0, 100
+	 ble   $a0, $t0, L1
+	 addiu $v0, $a0, -10
+	 jr    $ra
+	 
+L1:	 sw    $fp, -4($sp)
+	 addi  $fp, $sp, -4
+	 sw    $ra, -4($fp)
+	 addi  $sp, $fp, -4
+
+	 addiu $a0, $a0, 11
+	 jal   M91
+
+L2:	 move  $a0, $v0
+	 jal   M91
+
+L3:	 addi  $sp, $fp, 4
+	 lw    $ra, -4($fp)
+	 lw    $fp, 0($fp)
+
+	 jr   $ra
+\end{lstlisting}
+
+
+
+\end{document}
