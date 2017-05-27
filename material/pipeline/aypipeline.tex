@@ -1,0 +1,156 @@
+\documentclass[letterpaper,11pt,notitlepage]{article} 
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+% para poder escribir con tildes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% fuentes para escribir símbolos
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+
+% inclusión de graficos
+\usepackage{graphicx}
+
+% \usepackage{hyperref}
+\pagestyle{empty}
+\usepackage[centertags]{amsmath}
+% Codigo
+\usepackage{listings}
+% Varias Imagenes en una Figura
+\usepackage{subfig}
+% //posicion imagen
+\usepackage{float}
+\usepackage{subfig}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+% \topmargin 0 
+
+
+\usepackage{color}
+\definecolor{gray97}{gray}{1}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\lstset{ frame=Ltb,
+framerule=0pt,
+aboveskip=0.5cm,
+framextopmargin=3pt,
+framexbottommargin=3pt,
+framexleftmargin=0.4cm,
+framesep=0pt,
+rulesep=.4pt,
+backgroundcolor=\color{gray97},
+rulesepcolor=\color{black},
+%
+stringstyle=\ttfamily,
+showstringspaces = false,
+basicstyle=\small\small\ttfamily,
+commentstyle=\color{gray45},
+keywordstyle=\bfseries,
+%
+numbers=left,
+numbersep=12pt,
+numberstyle=\tiny,
+numberfirstline = false,
+breaklines=true,
+}
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+{\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+\lstdefinestyle{consola}
+{basicstyle=\scriptsize\bf\ttfamily,
+backgroundcolor=\color{gray75},
+}
+\lstdefinestyle{C}
+{language=C,
+basicstyle=\ttfamily
+}
+
+% ====================================
+
+% % ===== Encabezado =====
+% \pagestyle{myheadings}
+% \markright{Tutorial Creación de proyecto en MPLABX \hfill }
+
+
+% ===== Ajuste layout pagina =====
+%\usepackage{fullpage}
+
+% ================================
+
+% --- commandos ---
+% \newcommand{\ds}{\displaystyle}
+% \def\x{{\bf x}}
+% -----------------
+
+% ========  Aca comienza el cuerpo del texto ==========
+\begin{document}
+
+% \maketitle
+
+\begin{center}
+\textsc{ \huge \bfseries Arquitectura de Computadores\\[0.2cm] 543.426}\\[0.2cm]
+\textsc{ Ayudante: Antonio Saavedra}\\[0.2cm]
+Ayudantía de pipeline\\
+
+\today
+
+\end{center}
+
+
+
+\section{Problema 1}
+
+Suponga un procesador MIPS segmentado en un pipeline de 8 etapas: 2 de fetch, 1 de decodificación, 2 de ejecución, 2 de acceso a memoria de datos y una de escritura en registros. El pipeline está regularizado, utiliza saltos retrasados que se resuelven en la etapa de decodificación, y soporta forwarding de datos en todas las etapas. Considere el siguiente código:
+\begin{lstlisting}[style=C]
+I1: lw   $t1, 0($a0)
+I2: lw   $t2, 1000($a0)
+I3: add  $t1, $t1, $t2
+I4: sw   $t1, 2000($a0)
+I5: addi $a0, $a0, 4
+I6: bne  $a0, $a1, I1
+I7: nop
+I8: nop
+\end{lstlisting}
+\textbf{a)} Identifique las dependencia RAW, WAR, y WAW dentro de una ejecución de este código.
+\\
+
+\textbf{b)} Grafique la ejecución del código y calcule su CPI sostenido.
+\\
+
+\textbf{c)} Calcule el CPI sostenido graficando luego de reordenar el código para minimizar burbujas. Renombre registros y ajuste constantes de ser necesario.
+\\
+
+\textbf{d)} Calcule el CPI sostenido graficando luego de aplicar loop unrolling x2, renombrar registros y reordenar el código para optimizar su desempeño. Suponga que el lado itera un número par de veces.
+\newpage
+\section{Problema 2}
+
+En un procesador MIPS con un pipeline en 12 etapas se pretende ejecutar el siguiente código:
+
+\begin{lstlisting}[style=C]
+ I1: lw   $t1, 0($a0)
+ I2: add  $t1, $t1, $t0
+ I3: lw   $t2, 40($a0)
+ I4: add  $t2, $t2, $t0
+ I5: mul  $t2, $t1, $t2
+ I6: lw   $t1, 0($a1)
+ I7: sub  $t1, $t2, $t1
+ I8: add  $t2, $t1, $t2
+ I9: sw   $t1, 4($a1)
+I10: addi $a1, $a1, 4
+I11: add  $a0, $a0, $t2
+I12: beq  $a1, $t5, I1
+
+ 
+\end{lstlisting}
+
+Las etapas del pipeline se descomponen en 2 etapas de fetch, 2 etapas de decodificación, 3 de ejecución en ALU, 4 de acceso a memoria de datos y 1 de escrita en los registros. El pipeline está regularizado y ejecuta los saltos utilizando un predictor de saltos que se asume perfecto y los resuelve al finalizar el segundo ciclo de la etapa de decodificación. El pipeline soporta forwarding en todas sus etapas.
+\\
+
+\textbf{a)} Identifique las dependencia RAW, WAR, y WAW dentro de una ejecución de este código.
+\\
+
+\textbf{b)} Calcule el CPI sostenido graficando luego de reordenar el código para minimizar burbujas. Renombre registros y ajuste constantes de ser necesario.
+
+\end{document}
